@@ -1,1 +1,1 @@
-from ._typing import * 
+from ._typing import *   # noqa: F403

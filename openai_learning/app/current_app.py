@@ -1,5 +1,5 @@
 from openai import OpenAI, AsyncOpenAI
-from openai.types.chat import ChatCompletionMessageParam
+from openai.types.chat import ChatCompletionMessageParam, ChatCompletion
 
 
 from ..setting import read_config_ini
@@ -18,5 +18,15 @@ class OpenAIClient:
         self,
         messages: list[ChatCompletionMessageParam],
         model: OpenAPI_MODEL,
-    ):
+    ) -> ChatCompletion:
+        """
+        create_message 傳送訊息並接收訊息
+
+        Args:
+            messages (list[ChatCompletionMessageParam]): 傳送的訊息
+            model (OpenAPI_MODEL): GPT train model
+
+        Returns:
+            ChatCompletion: 接收的訊息
+        """
         return self.__client.chat.completions.create(messages=messages, model=model)
