@@ -14,13 +14,13 @@ class OpenAIClient:
     ):
         self.__client = OpenAI(api_key=openai_key)
 
-    def create_message(
+    def create_conversation(
         self,
         messages: list[ChatCompletionMessageParam],
         model: OpenAPI_MODEL,
     ) -> ChatCompletion:
         """
-        create_message 傳送訊息並接收訊息
+        create_conversation 傳送訊息並接收訊息
 
         Args:
             messages (list[ChatCompletionMessageParam]): 傳送的訊息
