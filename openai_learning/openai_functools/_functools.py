@@ -13,14 +13,21 @@ def create_conversation(
     return client.chat.completions.create(messages=messages, model=model)
 
 
-def calculate_token(
+def calculate_message_token(
     model: OpenAPI_MODEL,
     message: ChatCompletionMessageParam,
 ) -> int:
     from transformers import GPT2Tokenizer
+
     assert "content" in message
-    
+
     return len(GPT2Tokenizer.from_pretrained(model).encode(message["content"]))
+
+
+def calulate_message_tokens(
+    model: OpenAPI_MODEL, messages: list[ChatCompletionMessageParam]
+):
+    model_limit_token: int = get_gpt_model_token(model)
 
 
 def get_gpt_model_token(model: OpenAPI_MODEL):
