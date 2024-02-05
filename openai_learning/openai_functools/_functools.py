@@ -24,10 +24,30 @@ def calculate_message_token(
     return len(GPT2Tokenizer.from_pretrained(model).encode(message["content"]))
 
 
-def calulate_message_tokens(
-    model: OpenAPI_MODEL, messages: list[ChatCompletionMessageParam]
+def calculate_message_tokens(
+    model: OpenAPI_MODEL,
+    messages: list[ChatCompletionMessageParam],
 ):
-    model_limit_token: int = get_gpt_model_token(model)
+    return sum(
+        (calculate_message_token(model=model, message=message) for message in messages)
+    )
+
+
+def split_reply_messages(
+    model: OpenAPI_MODEL,
+    messages: list[ChatCompletionMessageParam],
+    defualt_reply_message_token: int = 500,
+):
+    model_limit_token: int = get_gpt_model_token(model) - defualt_reply_message_token
+
+    index = len(messages) - 1
+    sum_token = 0
+
+    while (model_limit_token >= sum_token) or index != 0:
+        sum_token += calculate_message_token(model=model, message=messages[index])
+        index -= 1
+
+    return messages[index:]
 
 
 def get_gpt_model_token(model: OpenAPI_MODEL):
