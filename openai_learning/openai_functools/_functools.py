@@ -43,11 +43,13 @@ def split_reply_messages(
     index = len(messages) - 1
     sum_token = 0
 
-    while (model_limit_token >= sum_token) or index != 0:
+    while index >= 0 and model_limit_token >= sum_token:
         sum_token += calculate_message_token(model=model, message=messages[index])
+        if sum_token > model_limit_token:
+            break
         index -= 1
 
-    return messages[index:]
+    return messages[index + 1 :]
 
 
 def get_gpt_model_token(model: OpenAPI_MODEL):
