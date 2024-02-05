@@ -43,7 +43,7 @@ def split_reply_messages(
     index = len(messages) - 1
     sum_token = 0
 
-    while index >= 0 and model_limit_token >= sum_token:
+    while index >= 0:
         sum_token += calculate_message_token(model=model, message=messages[index])
         if sum_token > model_limit_token:
             break
