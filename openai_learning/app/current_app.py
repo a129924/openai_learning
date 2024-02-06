@@ -1,9 +1,7 @@
 from openai import OpenAI, AsyncOpenAI
-from openai.types.chat import ChatCompletionMessageParam, ChatCompletion
-
 
 from ..setting import read_config_ini
-from .._typing import OpenAPI_MODEL
+from .._typing import OpenAPI_MODEL, ChatResponse, ChatCompletionMessageParam, Stream
 
 
 __all__ = ["OpenAIClient"]
@@ -15,14 +13,17 @@ class OpenAIClient:
     def __init__(
         self, openai_key: str = read_config_ini()["OPENAPI_SETTING"]["API_KEY"]
     ):
-        self.__client = OpenAI(api_key=openai_key)
-    
+        from ..utils import set_env
+        print(f"{openai_key = }")
+        set_env("OPENAI_API_KEY", openai_key)
+        
+        self.__client = OpenAI()
     def create_conversation(
         self,
         messages: list[ChatCompletionMessageParam],
         model: OpenAPI_MODEL,
         auto_save_messages: bool = True,
-    ) -> ChatCompletion:
+    ) -> ChatResponse:
         """
         create_conversation 傳送訊息並接收訊息
 
@@ -32,13 +33,37 @@ class OpenAIClient:
             auto_save_messages (bool): 是否自動儲存messages 如果是 則會自動儲存到__MESSAGES 反之不會儲存 直接使用messages
         Returns:
             ChatCompletion: 接收的訊息
+
+        ## Example :
+        ```python=
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": "Say this is a test",
+                }
+            ],
+            model="gpt-3.5-turbo",
+        )
+        ```
         """
-        from ..openai_functools import create_conversation
+        from ..openai_functools import create_conversation, split_reply_messages
+
+        working_messages = self.__MESSAGES if auto_save_messages else messages
+
         if auto_save_messages:
             self.__MESSAGES.extend(messages)
-            
-            return create_conversation(client=self.__client, messages=self.__MESSAGES, model=model)
 
-        return create_conversation(client=self.__client, messages=messages, model=model)
+        # working_messages = split_reply_messages(model=model, messages=working_messages)
 
-    
+        return create_conversation(
+            client=self.__client, messages=working_messages, model=model
+        )
+
+    def print_stream(self, stream: ChatResponse) -> None:
+        if isinstance(stream, Stream):
+            for chunk in stream:
+                print(chunk.choices[0].delta.content)
+
+        else:
+            print(stream.choices[0].message)

@@ -1,17 +1,23 @@
 from typing import Literal
 
-from openai.types.chat import ChatCompletionMessageParam, ChatCompletion
+
 from openai import OpenAI
 
-from .._typing import OpenAPI_MODEL
 
-__all__ = ["create_conversation", "split_reply_messages"]
+from .._typing import OpenAPI_MODEL, ChatResponse, ChatCompletionMessageParam
+
+__all__ = [
+    "create_conversation",
+    "split_reply_messages",
+    "calculate_message_tokens",
+    "calculate_message_token",
+]
 
 
 def create_conversation(
     client: OpenAI, messages: list[ChatCompletionMessageParam], model: OpenAPI_MODEL
-) -> ChatCompletion:
-    return client.chat.completions.create(messages=messages, model=model)
+) -> ChatResponse:
+    return client.chat.completions.create(messages=messages, model=model,)
 
 
 def calculate_message_token(
@@ -40,7 +46,7 @@ def split_reply_messages(
     defualt_reply_message_token: int = 500,
 ) -> list[ChatCompletionMessageParam]:
     model_limit_token: int = get_gpt_model_token(model) - defualt_reply_message_token
-    sum_token:int = 0
+    sum_token: int = 0
 
     for index in range(index := len(messages) - 1, -1, -1):
         sum_token += calculate_message_token(model=model, message=messages[index])
