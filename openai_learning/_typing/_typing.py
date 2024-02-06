@@ -1,9 +1,14 @@
-from typing import Literal
+from typing import Literal, Union
 
 from pydantic import BaseModel
-from openai.types.chat import ChatCompletionMessageParam
+from openai.types.chat import (
+    ChatCompletionMessageParam,
+    ChatCompletionChunk,
+    ChatCompletion,
+)
+from openai._streaming import Stream
 
-__all__ = ["Message", "OpenAPI_MODEL"]
+__all__ = ["Message", "OpenAPI_MODEL", "ChatResponse", "ChatCompletionMessageParam", "Stream"]
 
 
 OpenAPI_MODEL = Literal[
@@ -25,6 +30,7 @@ OpenAPI_MODEL = Literal[
     "gpt-3.5-turbo-16k-0613",
 ]
 
+ChatResponse = Union[Stream[ChatCompletionChunk], ChatCompletion]
 
 class MessageRule(BaseModel):
     role: Literal["user"]
