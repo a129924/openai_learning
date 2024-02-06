@@ -1,10 +1,11 @@
+from typing import Literal
+
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletion
 from openai import OpenAI
 
-
 from .._typing import OpenAPI_MODEL
 
-__all__ = ["create_conversation"]
+__all__ = ["create_conversation", "split_reply_messages"]
 
 
 def create_conversation(
@@ -27,7 +28,7 @@ def calculate_message_token(
 def calculate_message_tokens(
     model: OpenAPI_MODEL,
     messages: list[ChatCompletionMessageParam],
-):
+) -> int:
     return sum(
         (calculate_message_token(model=model, message=message) for message in messages)
     )
@@ -37,22 +38,19 @@ def split_reply_messages(
     model: OpenAPI_MODEL,
     messages: list[ChatCompletionMessageParam],
     defualt_reply_message_token: int = 500,
-):
+) -> list[ChatCompletionMessageParam]:
     model_limit_token: int = get_gpt_model_token(model) - defualt_reply_message_token
+    sum_token:int = 0
 
-    index = len(messages) - 1
-    sum_token = 0
-
-    while index >= 0:
+    for index in range(index := len(messages) - 1, -1, -1):
         sum_token += calculate_message_token(model=model, message=messages[index])
         if sum_token > model_limit_token:
             break
-        index -= 1
 
     return messages[index + 1 :]
 
 
-def get_gpt_model_token(model: OpenAPI_MODEL):
+def get_gpt_model_token(model: OpenAPI_MODEL) -> Literal[2048, 8000, 16000, 32000]:
     if model.startswith("gpt-3.5"):
         if "16k" in model:
             return 16_000
