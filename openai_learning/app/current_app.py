@@ -13,11 +13,8 @@ class OpenAIClient:
     def __init__(
         self, openai_key: str = read_config_ini()["OPENAPI_SETTING"]["API_KEY"]
     ):
-        from ..utils import set_env
-        print(f"{openai_key = }")
-        set_env("OPENAI_API_KEY", openai_key)
-        
-        self.__client = OpenAI()
+        self.__client = OpenAI(api_key=openai_key)
+
     def create_conversation(
         self,
         messages: list[ChatCompletionMessageParam],
@@ -47,7 +44,7 @@ class OpenAIClient:
         )
         ```
         """
-        from ..openai_functools import create_conversation, split_reply_messages
+        from ..openai_functools import create_conversation
 
         working_messages = self.__MESSAGES if auto_save_messages else messages
 
